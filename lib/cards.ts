@@ -208,3 +208,84 @@ export const HAND_CATEGORY_NAME = [
   "Four of a kind",
   "Straight flush",
 ] as const;
+
+const RANK_WORD: Record<number, string> = {
+  2: "twos",
+  3: "threes",
+  4: "fours",
+  5: "fives",
+  6: "sixes",
+  7: "sevens",
+  8: "eights",
+  9: "nines",
+  10: "tens",
+  11: "jacks",
+  12: "queens",
+  13: "kings",
+  14: "aces",
+};
+
+/** Short plain-English hand label for showdown UI. */
+export function describeHand(hand: HandRank): string {
+  if (hand.category < 0) return "";
+  const top = hand.values[0] ?? 0;
+  const second = hand.values[1] ?? 0;
+  switch (hand.category) {
+    case 0:
+      return `High card ${RANK_CHAR[top] ?? top}`;
+    case 1:
+      return `Pair of ${RANK_WORD[top] ?? top}`;
+    case 2:
+      return `Two pair, ${RANK_WORD[top] ?? top} and ${RANK_WORD[second] ?? second}`;
+    case 3:
+      return `Three ${RANK_WORD[top] ?? top}`;
+    case 4:
+      return `Straight to ${RANK_CHAR[top] ?? top}`;
+    case 5:
+      return "Flush";
+    case 6:
+      return `Full house, ${RANK_WORD[top] ?? top} full of ${RANK_WORD[second] ?? second}`;
+    case 7:
+      return `Four ${RANK_WORD[top] ?? top}`;
+    case 8:
+      return `Straight flush to ${RANK_CHAR[top] ?? top}`;
+    default:
+      return HAND_CATEGORY_NAME[hand.category] ?? "Hand";
+  }
+}
+
+export function formatShowdownResult(
+  winners: { name: string; hand?: HandRank }[],
+): string {
+  if (winners.length === 0) return "Pot awarded";
+  if (winners.length === 1) {
+    const w = winners[0]!;
+    const hand = w.hand ? describeHand(w.hand) : "";
+    return hand ? `${w.name} wins with ${hand}` : `${w.name} wins`;
+  }
+  if (winners.length === 2) {
+    return `${winners[0]!.name} and ${winners[1]!.name} split the pot`;
+  }
+  const last = winners[winners.length - 1]!;
+  const head = winners.slice(0, -1).map((w) => w.name).join(", ");
+  return `${head}, and ${last.name} split the pot`;
+}
+
+export function showdownResultForTable(input: {
+  winners: string[] | null | undefined;
+  board: Card[];
+  players: { id: string; name: string; holeCards: Card[] }[];
+}): string {
+  const winners = (input.winners ?? [])
+    .map((id) => {
+      const p = input.players.find((x) => x.id === id);
+      if (!p) return null;
+      const hand: HandRank | undefined =
+        input.board.length >= 3 && p.holeCards.length >= 2
+          ? bestHoldemHand(p.holeCards, input.board)
+          : undefined;
+      return { name: p.name, hand };
+    })
+    .filter((w): w is { name: string; hand: HandRank | undefined } => w !== null);
+  return formatShowdownResult(winners);
+}

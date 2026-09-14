@@ -2,6 +2,7 @@
 
 import { ChipAmount, ChipStack } from "@/components/ChipStack";
 import { formatChips } from "@/lib/chips";
+import { showdownResultForTable } from "@/lib/cards";
 import { matchBetLabel, streetLabel, visiblePot, type TableState } from "@/lib/poker";
 
 export function PotView({
@@ -15,6 +16,14 @@ export function PotView({
 }) {
   const pot = visiblePot(table);
   const toCall = table.game.currentBet;
+  const result =
+    table.game.handComplete && table.game.winners
+      ? showdownResultForTable({
+          winners: table.game.winners,
+          board: table.game.board,
+          players: table.players,
+        })
+      : null;
 
   return (
     <section className="flex h-full flex-col items-center justify-center px-4 py-3 text-center">
@@ -36,9 +45,7 @@ export function PotView({
             <ChipAmount amount={toCall} />
           </p>
         )}
-        {table.game.handComplete && table.game.winners && (
-          <p className="font-semibold text-gold">Pot awarded</p>
-        )}
+        {result && <p className="font-semibold text-gold">{result}</p>}
         {!table.game.handComplete && actorName && (
           <p className={isYourTurn ? "font-bold text-gold" : "text-cream/80"}>
             {isYourTurn ? "Your turn" : `${actorName}'s turn`}

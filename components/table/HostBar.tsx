@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FeltButton } from "@/components/FeltButton";
+import { showdownResultForTable } from "@/lib/cards";
 import { nextStreet, streetLabel, type CardMode, type TableState } from "@/lib/poker";
 
 export function HostBar({
@@ -25,14 +26,16 @@ export function HostBar({
 
   let body;
   if (table.game.handComplete) {
-    const names = (table.game.winners ?? [])
-      .map((id) => table.players.find((p) => p.id === id)?.name)
-      .filter(Boolean)
-      .join(", ");
     body = (
       <div className="flex items-center justify-between gap-3 px-3 py-2">
-        <p className="text-xs text-gold">{names || "Winner"} takes the pot</p>
-        <FeltButton className="min-h-10 text-xs" onClick={onNextHand}>
+        <p className="text-xs font-semibold text-gold">
+          {showdownResultForTable({
+            winners: table.game.winners,
+            board: table.game.board,
+            players: table.players,
+          })}
+        </p>
+        <FeltButton className="min-h-10 shrink-0 text-xs" onClick={onNextHand}>
           Next hand
         </FeltButton>
       </div>

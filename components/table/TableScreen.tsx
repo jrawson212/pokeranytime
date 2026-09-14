@@ -4,6 +4,11 @@ import { ChipAmount } from "@/components/ChipStack";
 import { HomeButton } from "@/components/HomeButton";
 import { CardRow } from "@/components/PlayingCard";
 import {
+  bestHoldemHand,
+  describeHand,
+  showdownResultForTable,
+} from "@/lib/cards";
+import {
   positionTags,
   streetLabel,
   visiblePot,
@@ -100,6 +105,8 @@ export function TableScreen({
           : table.game.street === "turn"
             ? 1
             : 0;
+    const revealHands =
+      table.game.handComplete || table.game.street === "showdown";
 
     return (
       <div className="relative flex h-dvh flex-col overflow-hidden felt-bg">
@@ -108,9 +115,19 @@ export function TableScreen({
           <p className="text-center text-xs font-semibold uppercase tracking-[0.25em] text-gold">
             {streetLabel(table.game.street)} · Hand {table.game.handNumber}
           </p>
-          <p className="mt-2 text-center text-xs font-semibold uppercase tracking-wider text-felt-muted">
-            Your cards · scroll to peek
-          </p>
+          {table.game.handComplete ? (
+            <p className="mt-2 text-center text-sm font-semibold text-gold">
+              {showdownResultForTable({
+                winners: table.game.winners,
+                board: table.game.board,
+                players: table.players,
+              })}
+            </p>
+          ) : (
+            <p className="mt-2 text-center text-xs font-semibold uppercase tracking-wider text-felt-muted">
+              Your cards · scroll to peek
+            </p>
+          )}
           <p className="mt-1 text-center font-mono text-2xl font-bold text-gold">
             {formatChips(visiblePot(table))}
           </p>
@@ -130,34 +147,55 @@ export function TableScreen({
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-3">
           <ul className="space-y-2">
-            {table.players.map((p) => (
-              <li
-                key={p.id}
-                className={`flex items-center justify-between rounded-xl px-3 py-2 ${
-                  p.id === table.game.toAct
-                    ? "bg-gold/15 ring-1 ring-gold"
-                    : "bg-black/20"
-                }`}
-              >
-                <span className="font-semibold">
-                  {p.name}
-                  {positionTags(table.players, table.game.dealerSeat, p.id).map(
-                    (tag) => (
-                      <span key={tag} className="text-gold">
-                        {" · "}
-                        {tag}
-                      </span>
-                    ),
+            {table.players.map((p) => {
+              const hand =
+                revealHands && p.holeCards.length >= 2 && table.game.board.length >= 3
+                  ? bestHoldemHand(p.holeCards, table.game.board)
+                  : null;
+              const won = table.game.winners?.includes(p.id);
+              return (
+                <li
+                  key={p.id}
+                  className={`rounded-xl px-3 py-2 ${
+                    won
+                      ? "bg-gold/20 ring-1 ring-gold"
+                      : p.id === table.game.toAct
+                        ? "bg-gold/15 ring-1 ring-gold"
+                        : "bg-black/20"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold">
+                      {p.name}
+                      {positionTags(table.players, table.game.dealerSeat, p.id).map(
+                        (tag) => (
+                          <span key={tag} className="text-gold">
+                            {" · "}
+                            {tag}
+                          </span>
+                        ),
+                      )}
+                      {p.folded ? " · fold" : ""}
+                      {p.isAllIn ? " · all-in" : ""}
+                    </span>
+                    <ChipAmount amount={p.stack} />
+                  </div>
+                  {revealHands && !p.folded && p.holeCards.length > 0 && (
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <CardRow cards={p.holeCards} size="sm" />
+                      {hand && (
+                        <span className="text-xs text-felt-muted">
+                          {describeHand(hand)}
+                        </span>
+                      )}
+                    </div>
                   )}
-                  {p.folded ? " · fold" : ""}
-                  {p.isAllIn ? " · all-in" : ""}
-                </span>
-                <ChipAmount amount={p.stack} />
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
 
-          {actingPlayer && isYourTurn && (
+          {actingPlayer && isYourTurn && !table.game.handComplete && (
             <div className="mt-4">
               <ActionBar
                 table={table}
@@ -167,20 +205,24 @@ export function TableScreen({
             </div>
           )}
 
-          {/* Always push hole cards below the fold, even with 2 players. */}
-          <div className="min-h-[85dvh] shrink-0" aria-hidden />
+          {!revealHands && (
+            <>
+              {/* Always push hole cards below the fold, even with 2 players. */}
+              <div className="min-h-[85dvh] shrink-0" aria-hidden />
 
-          <div className="border-t border-white/10 pb-10 pt-8">
-            {holeCards.length > 0 ? (
-              <CardRow cards={holeCards} size="lg" />
-            ) : (
-              <p className="text-center text-sm text-felt-muted">
-                {mode === "pass"
-                  ? "Cards stay hidden until it\u2019s your turn"
-                  : "Waiting for the deal"}
-              </p>
-            )}
-          </div>
+              <div className="border-t border-white/10 pb-10 pt-8">
+                {holeCards.length > 0 ? (
+                  <CardRow cards={holeCards} size="lg" />
+                ) : (
+                  <p className="text-center text-sm text-felt-muted">
+                    {mode === "pass"
+                      ? "Cards stay hidden until it\u2019s your turn"
+                      : "Waiting for the deal"}
+                  </p>
+                )}
+              </div>
+            </>
+          )}
         </div>
 
         {hostBar}
