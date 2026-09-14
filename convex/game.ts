@@ -7,15 +7,40 @@ import {
   startHand,
   type Action,
 } from "../lib/poker";
+import { runBotTurns } from "../lib/bots";
 import { mutation } from "./_generated/server";
 import { persistTable, requireHost, toTable } from "./table";
-import type { Id } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
+import type { MutationCtx } from "./_generated/server";
 
 function asPokerError(e: unknown): never {
   if (e instanceof ConvexError) throw e;
   if (e instanceof PokerError) throw new ConvexError(e.message);
   if (e instanceof Error) throw new ConvexError(e.message);
   throw new ConvexError("Something went wrong");
+}
+
+async function finishWithBots(
+  ctx: MutationCtx,
+  room: Doc<"rooms">,
+  players: Doc<"players">[],
+  table: ReturnType<typeof toTable>,
+) {
+  const botIds = new Set(
+    players.filter((p) => p.isBot).map((p) => p._id as string),
+  );
+  const next =
+    botIds.size > 0 ? runBotTurns(table, botIds, applyAction) : table;
+  await persistTable(ctx, room, next);
+  const humans = players.filter((p) => !p.isBot);
+  await ctx.db.patch(room._id, {
+    acknowledgedActor:
+      humans.length <= 1 && next.game.toAct
+        ? (next.game.toAct as Id<"players">)
+        : room.mode === "pass"
+          ? null
+          : (next.game.toAct as Id<"players"> | null),
+  });
 }
 
 export const start = mutation({
@@ -47,14 +72,8 @@ export const start = mutation({
       }
 
       const table = toTable(room, players);
-      const next = startHand(table);
-      await persistTable(ctx, room, next);
-      await ctx.db.patch(room._id, {
-        acknowledgedActor:
-          room.mode === "pass"
-            ? null
-            : (next.game.toAct as Id<"players"> | null),
-      });
+      const started = startHand(table);
+      await finishWithBots(ctx, room, players, started);
     } catch (e) {
       asPokerError(e);
     }
@@ -96,12 +115,18 @@ export const act = mutation({
         .withIndex("by_room", (q) => q.eq("roomId", room._id))
         .collect();
 
+      const actor = players.find((p) => p._id === actorId);
+      if (actor?.isBot) {
+        throw new ConvexError("Waiting for automatic players");
+      }
+
+      if (room.mode !== "pass" && actorId !== args.playerId) {
+        throw new ConvexError("Not your turn");
+      }
+
       const table = toTable(room, players);
-      const next = applyAction(table, actorId, args.action as Action);
-      await persistTable(ctx, room, next);
-      await ctx.db.patch(room._id, {
-        acknowledgedActor: room.mode === "pass" ? null : args.playerId,
-      });
+      const afterHuman = applyAction(table, actorId, args.action as Action);
+      await finishWithBots(ctx, room, players, afterHuman);
     } catch (e) {
       asPokerError(e);
     }

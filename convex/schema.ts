@@ -59,5 +59,6 @@ export default defineSchema({
     raiseAllowed: v.boolean(),
     sittingOut: v.boolean(),
     holeCards: v.optional(v.array(v.string())),
+    isBot: v.optional(v.boolean()),
   }).index("by_room", ["roomId"]),
 });

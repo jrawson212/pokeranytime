@@ -237,7 +237,7 @@ export function LandingScreen({
                   type="button"
                   onClick={() => {
                     setMode("pass");
-                    setExtraNames((cur) => (cur.length === 0 ? [""] : cur));
+                    setExtraNames(cardMode === "digital" ? [] : [""]);
                   }}
                   className={`rounded-2xl border px-3 py-4 text-left ${mode === "pass" ? "border-gold bg-gold/15" : "border-white/10 bg-black/20"}`}
                 >
@@ -256,7 +256,12 @@ export function LandingScreen({
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={() => setCardMode("physical")}
+                  onClick={() => {
+                    setCardMode("physical");
+                    if (mode === "pass" && extraNames.length === 0) {
+                      setExtraNames([""]);
+                    }
+                  }}
                   className={`rounded-2xl border px-3 py-4 text-left ${cardMode === "physical" ? "border-gold bg-gold/15" : "border-white/10 bg-black/20"}`}
                 >
                   <span className="block font-bold">We have cards</span>
@@ -266,7 +271,12 @@ export function LandingScreen({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setCardMode("digital")}
+                  onClick={() => {
+                    setCardMode("digital");
+                    if (mode === "pass" && extraNames.every((n) => !n.trim())) {
+                      setExtraNames([]);
+                    }
+                  }}
                   className={`rounded-2xl border px-3 py-4 text-left ${cardMode === "digital" ? "border-gold bg-gold/15" : "border-white/10 bg-black/20"}`}
                 >
                   <span className="block font-bold">We don&apos;t have cards</span>
@@ -330,8 +340,16 @@ export function LandingScreen({
                   Who&apos;s playing
                 </p>
                 <p className="mt-1 text-sm text-felt-muted">
-                  Add everyone on this phone. No room code — you&apos;ll pass the phone.
+                  {cardMode === "digital"
+                    ? "Add friends on this phone, or start alone and play against 3 automatic players."
+                    : "Add everyone on this phone. No room code — you\u2019ll pass the phone."}
                 </p>
+                {cardMode === "digital" &&
+                  extraNames.filter((n) => n.trim()).length < 1 && (
+                    <p className="mt-2 rounded-xl bg-gold/10 px-3 py-2 text-sm text-gold">
+                      Solo mode: River, Oak, and Bluff will sit with you.
+                    </p>
+                  )}
                 <ul className="mt-3 space-y-2">
                   <li className="rounded-xl bg-black/25 px-4 py-3 font-semibold">
                     {nameValue.trim() || "You"}
@@ -355,12 +373,17 @@ export function LandingScreen({
                         enterKeyHint="next"
                         autoComplete="off"
                       />
-                      {extraNames.length > 1 && (
+                      {(extraNames.length > 1 ||
+                        (cardMode === "digital" && extraNames.length >= 1)) && (
                         <button
                           type="button"
                           className="px-2 text-xs uppercase tracking-wider text-danger"
                           onClick={() =>
-                            setExtraNames((cur) => cur.filter((_, j) => j !== i))
+                            setExtraNames((cur) => {
+                              const next = cur.filter((_, j) => j !== i);
+                              if (next.length > 0) return next;
+                              return cardMode === "digital" ? [] : [""];
+                            })
                           }
                         >
                           Remove
@@ -376,7 +399,10 @@ export function LandingScreen({
                     onClick={() => {
                       revealNewPlayer.current = true;
                       flushSync(() => {
-                        setExtraNames((cur) => [...cur, ""]);
+                        setExtraNames((cur) => {
+                          const filled = cur.filter((n) => n.trim());
+                          return [...filled, ""];
+                        });
                       });
                       newPlayerInputRef.current?.focus({ preventScroll: true });
                     }}
@@ -418,15 +444,21 @@ export function LandingScreen({
               busy ||
               nameValue.trim().length < 1 ||
               seatsOutOfRange ||
-              (mode === "pass" && extraNames.filter((n) => n.trim()).length < 1)
+              (mode === "pass" &&
+                cardMode !== "digital" &&
+                extraNames.filter((n) => n.trim()).length < 1)
             }
             onClick={submitCreate}
           >
             {busy
               ? "Creating…"
-              : mode === "pass"
-                ? "Start game"
-                : "Create room"}
+              : mode === "pass" &&
+                  cardMode === "digital" &&
+                  extraNames.filter((n) => n.trim()).length < 1
+                ? "Play solo"
+                : mode === "pass"
+                  ? "Start game"
+                  : "Create room"}
           </FeltButton>
         )}
       </div>

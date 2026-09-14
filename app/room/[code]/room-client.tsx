@@ -251,8 +251,11 @@ function ReadyRoom({
     return <div className="min-h-dvh felt-bg" />;
   }
 
+  const humanCount = players.filter((p) => !(p as { isBot?: boolean }).isBot)
+    .length;
   const needsPass =
     room.mode === "pass" &&
+    humanCount > 1 &&
     !!room.toAct &&
     room.acknowledgedActor !== room.toAct &&
     !room.handComplete &&

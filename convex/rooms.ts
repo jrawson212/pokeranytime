@@ -4,7 +4,8 @@ import {
   MIN_BUY_IN_CENTS,
   MIN_SMALL_BLIND_CENTS,
 } from "../lib/chips";
-import { MAX_PLAYERS, MIN_PLAYERS, startHand } from "../lib/poker";
+import { applyAction, MAX_PLAYERS, MIN_PLAYERS, startHand } from "../lib/poker";
+import { runBotTurns, soloBotNames } from "../lib/bots";
 import { randomRoomCode } from "../lib/roomCode";
 import type { Id } from "./_generated/dataModel";
 import { internalMutation, mutation, query } from "./_generated/server";
@@ -119,6 +120,7 @@ function playerDoc(
   name: string,
   seat: number,
   buyIn: number,
+  isBot = false,
 ) {
   return {
     roomId,
@@ -133,6 +135,7 @@ function playerDoc(
     raiseAllowed: true,
     sittingOut: false,
     holeCards: [] as string[],
+    ...(isBot ? { isBot: true } : {}),
   };
 }
 
@@ -152,13 +155,20 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const name = normalizeName(args.name);
     const cardMode = args.cardMode ?? "physical";
-    const extras =
+    let extras =
       args.mode === "pass"
         ? (args.playerNames ?? [])
             .map((n) => n.trim())
             .filter((n) => n.length > 0)
             .map(normalizeName)
         : [];
+
+    const soloDigital =
+      args.mode === "pass" && cardMode === "digital" && extras.length === 0;
+    const botExtras = soloDigital ? soloBotNames().map(normalizeName) : [];
+    if (soloDigital) {
+      extras = botExtras;
+    }
 
     if (args.mode === "pass" && extras.length < 1) {
       throw new ConvexError("Add at least one other player");
@@ -212,7 +222,7 @@ export const create = mutation({
     for (let i = 0; i < extras.length; i++) {
       await ctx.db.insert(
         "players",
-        playerDoc(roomId, extras[i]!, i + 1, args.buyIn),
+        playerDoc(roomId, extras[i]!, i + 1, args.buyIn, soloDigital),
       );
     }
 
@@ -225,10 +235,20 @@ export const create = mutation({
         .query("players")
         .withIndex("by_room", (q) => q.eq("roomId", roomId))
         .collect();
-      const next = startHand(toTable(room, players));
+      let next = startHand(toTable(room, players));
+      if (soloDigital) {
+        const botIds = new Set(
+          players.filter((p) => p.isBot).map((p) => p._id as string),
+        );
+        next = runBotTurns(next, botIds, applyAction);
+      }
       await persistTable(ctx, room, next);
+      const humanOnly = players.filter((p) => !p.isBot).length <= 1;
       await ctx.db.patch(roomId, {
-        acknowledgedActor: null,
+        acknowledgedActor:
+          humanOnly && next.game.toAct
+            ? (next.game.toAct as Id<"players">)
+            : null,
       });
     }
 
