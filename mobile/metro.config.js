@@ -1,0 +1,15 @@
+const { getDefaultConfig } = require("expo/metro-config");
+const path = require("path");
+
+const projectRoot = __dirname;
+const config = getDefaultConfig(projectRoot);
+
+config.projectRoot = projectRoot;
+config.watchFolders = [projectRoot];
+config.resolver.nodeModulesPaths = [path.resolve(projectRoot, "node_modules")];
+config.resolver.extraNodeModules = {
+  react: path.resolve(projectRoot, "node_modules/react"),
+  "react-native": path.resolve(projectRoot, "node_modules/react-native"),
+};
+
+module.exports = config;

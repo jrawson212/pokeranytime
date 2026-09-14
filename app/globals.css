@@ -1,26 +1,54 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --felt-dark: #06291f;
+  --felt: #0b3d2e;
+  --felt-light: #14664c;
+  --gold: #e4c56a;
+  --cream: #f4ead5;
+  --danger: #c0392b;
+  --felt-muted: #8fb9a8;
+  --app-safe-top: 0px;
+  --app-safe-bottom: 0px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  min-height: 100%;
+  min-height: 100dvh;
+  background: var(--felt-dark);
+  color: var(--cream);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+.phone-screen {
+  box-sizing: border-box;
+  min-height: 100dvh;
+  padding-top: calc(max(3.25rem, env(safe-area-inset-top, 0px), var(--app-safe-top)) + 1.25rem);
+  padding-bottom: calc(max(1.5rem, env(safe-area-inset-bottom, 0px), var(--app-safe-bottom)));
+  padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
+}
+
+.safe-top {
+  padding-top: max(env(safe-area-inset-top, 0px), var(--app-safe-top));
+}
+
+.safe-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--app-safe-bottom));
+}
+
+.felt-bg {
+  background-color: var(--felt-dark);
+  background-image:
+    radial-gradient(ellipse at top, #14664c 0%, transparent 55%),
+    radial-gradient(circle at 20% 80%, rgba(228, 197, 106, 0.08), transparent 30%),
+    repeating-radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 3px);
+}
+
+.pot-glow {
+  text-shadow: 0 0 24px rgba(228, 197, 106, 0.45);
 }

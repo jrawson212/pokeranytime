@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Poker Anytime
 
-## Getting Started
+Virtual chips for a real deck of cards. One person creates a room code; everyone else joins on their phone. The pot lives on the top half of the screen, your stack on the bottom. Cards stay in your hands.
 
-First, run the development server:
+## Run it
+
+```bash
+npm install
+npx convex dev
+```
+
+Sign in with a free Convex account when asked. Leave that terminal running.
+
+In a second terminal:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Phone (Expo Go)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Keep Convex and Next running. In two more terminals:
 
-## Learn More
+```bash
+npm run dev:phone
+npm run expo
+```
 
-To learn more about Next.js, take a look at the following resources:
+Scan the QR with **Expo Go** (same Wi-Fi as this computer). The app loads the local site inside Expo. If the QR is missing, open Expo Go → Enter URL → `exp://YOUR_LAN_IP:8081`. You can also skip Expo and open `http://YOUR_LAN_IP:3000` in Safari.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Host the Next.js app on Vercel. Run `npx convex deploy` and set `NEXT_PUBLIC_CONVEX_URL` to your Convex production URL.
