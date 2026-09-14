@@ -171,7 +171,7 @@ export function LandingScreen({
         ref={formScrollRef}
         className="flex min-h-0 flex-1 flex-col justify-start gap-5 overflow-y-auto overscroll-y-contain pb-2 [-webkit-overflow-scrolling:touch]"
       >
-        <header className="shrink-0 pt-[calc(max(0.75rem,env(safe-area-inset-top,0px),var(--app-safe-top))+0.5rem)]">
+        <header className="shrink-0 pt-[calc(max(2.75rem,env(safe-area-inset-top,0px),var(--app-safe-top))+1rem)]">
           <h1 className="text-4xl font-bold tracking-tight">Poker Anytime</h1>
         </header>
 
