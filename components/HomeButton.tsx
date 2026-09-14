@@ -6,8 +6,10 @@ export function HomeButton({ onClick }: { onClick: () => void }) {
       type="button"
       onClick={onClick}
       aria-label="End game and go home"
-      className="absolute right-3 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-black/40 text-cream ring-1 ring-white/20 touch-manipulation"
-      style={{ top: "max(0.75rem, env(safe-area-inset-top, 0px), var(--app-safe-top))" }}
+      className="absolute right-3 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-cream ring-1 ring-white/25 touch-manipulation"
+      style={{
+        top: "calc(max(3rem, env(safe-area-inset-top, 0px), var(--app-safe-top)) + 0.35rem)",
+      }}
     >
       <svg
         width="20"
