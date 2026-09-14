@@ -104,7 +104,7 @@ export function TableScreen({
     return (
       <div className="relative flex h-dvh flex-col overflow-hidden felt-bg">
         <HomeButton onClick={onGoHome} />
-        <div className="safe-top shrink-0 border-b border-white/10 px-4 pb-4 pt-3">
+        <div className="safe-top shrink-0 border-b border-white/10 px-4 pb-4 pr-14">
           <p className="text-center text-xs font-semibold uppercase tracking-[0.25em] text-gold">
             {streetLabel(table.game.street)} · Hand {table.game.handNumber}
           </p>

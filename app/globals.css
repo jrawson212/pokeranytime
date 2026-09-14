@@ -34,11 +34,13 @@ body {
 }
 
 .safe-top {
-  padding-top: max(env(safe-area-inset-top, 0px), var(--app-safe-top));
+  padding-top: calc(
+    max(3rem, env(safe-area-inset-top, 0px), var(--app-safe-top)) + 0.75rem
+  );
 }
 
 .safe-bottom {
-  padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--app-safe-bottom));
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 0px), var(--app-safe-bottom));
 }
 
 .felt-bg {
