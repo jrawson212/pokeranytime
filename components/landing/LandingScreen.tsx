@@ -165,16 +165,16 @@ export function LandingScreen({
   }
 
   return (
-    <div className="phone-screen mx-auto flex h-dvh max-w-md flex-col felt-bg">
+    <div className="phone-screen mx-auto flex h-dvh max-w-md flex-col felt-bg !pt-0">
       <ErrorBanner message={error} onDismiss={() => setError(null)} />
+      <header className="shrink-0 pt-[calc(max(0.75rem,env(safe-area-inset-top,0px),var(--app-safe-top))+0.5rem)]">
+        <h1 className="text-4xl font-bold tracking-tight">Poker Anytime</h1>
+      </header>
+
       <div
         ref={formScrollRef}
-        className="flex min-h-0 flex-1 flex-col justify-start gap-5 overflow-y-auto overscroll-y-contain pb-6 [-webkit-overflow-scrolling:touch]"
+        className="mt-5 flex min-h-0 flex-1 flex-col justify-start gap-5 overflow-y-auto overscroll-y-contain pb-4 [-webkit-overflow-scrolling:touch]"
       >
-        <header className="shrink-0">
-          <h1 className="text-4xl font-bold tracking-tight">Poker Anytime</h1>
-        </header>
-
         <div className="grid shrink-0 grid-cols-2 gap-2 rounded-2xl border border-white/15 bg-black/25 p-1">
           <button
             type="button"
@@ -416,7 +416,7 @@ export function LandingScreen({
         )}
       </div>
 
-      <div className="mt-6 shrink-0">
+      <div className="mt-3 shrink-0">
         {tab === "join" ? (
           <>
             {nameValue.trim().length < 1 && (
@@ -430,7 +430,7 @@ export function LandingScreen({
               </p>
             )}
             <FeltButton
-              className="min-h-14 w-full"
+              className="!min-h-10 w-full py-2 text-sm"
               disabled={busy || nameValue.trim().length < 1 || normalizeCode(code).length !== 4}
               onClick={submitJoin}
             >
@@ -439,7 +439,7 @@ export function LandingScreen({
           </>
         ) : (
           <FeltButton
-            className="min-h-14 w-full"
+            className="!min-h-10 w-full py-2 text-sm"
             disabled={
               busy ||
               nameValue.trim().length < 1 ||
