@@ -1,19 +1,22 @@
-export const DENOMS = [500, 100, 50, 25, 10] as const;
+export const DENOMS = [500, 200, 100, 50, 25] as const;
 export type ChipDenom = (typeof DENOMS)[number];
 
-/** Left-to-right on the felt: dimes up to the $5 blacks. */
-export const DISPLAY_DENOMS = [10, 25, 50, 100, 500] as const;
+/** Left-to-right on the felt: white → red → blue → green → black. */
+export const DISPLAY_DENOMS = [25, 50, 100, 200, 500] as const;
 
 /** One $20 buy-in in cents. */
 export const BUY_IN_CENTS = 2000;
 
-/** Standard $20 rack: 1 black, 5 blue, 10 red, 8 green, 30 white. */
+/**
+ * Standard $20 rack:
+ * 1 black ($5) + 3 green ($2) + 5 blue ($1) + 4 red (50¢) + 8 white (25¢).
+ */
 export const STANDARD_RACK: { denom: ChipDenom; count: number }[] = [
   { denom: 500, count: 1 },
+  { denom: 200, count: 3 },
   { denom: 100, count: 5 },
-  { denom: 50, count: 10 },
+  { denom: 50, count: 4 },
   { denom: 25, count: 8 },
-  { denom: 10, count: 30 },
 ];
 
 export const CHIP_STYLES: Record<
@@ -37,6 +40,15 @@ export const CHIP_STYLES: Record<
     shine: "#555",
     face: "$5",
   },
+  200: {
+    bg: "#1e8449",
+    rim: "#145a32",
+    text: "#fff",
+    label: "green",
+    spot: "#f4ead5",
+    shine: "#58d68d",
+    face: "$2",
+  },
   100: {
     bg: "#1f6fbf",
     rim: "#15497c",
@@ -56,24 +68,18 @@ export const CHIP_STYLES: Record<
     face: "50¢",
   },
   25: {
-    bg: "#1e8449",
-    rim: "#145a32",
-    text: "#fff",
-    label: "green",
-    spot: "#f4ead5",
-    shine: "#58d68d",
-    face: "25¢",
-  },
-  10: {
     bg: "#f4f1ea",
     rim: "#b8aea0",
     text: "#1a1a1a",
     label: "white",
     spot: "#8a8178",
     shine: "#ffffff",
-    face: "10¢",
+    face: "25¢",
   },
 };
+
+/** Raise / bet +/- nudge size ($0.10). */
+export const BET_STEP_CENTS = 10;
 
 export function dollarsToCents(dollars: number): number {
   return Math.round(dollars * 100);
@@ -84,22 +90,23 @@ export function centsToDollars(cents: number): number {
 }
 
 export const MIN_BUY_IN_CENTS = 500;
-export const MIN_SMALL_BLIND_CENTS = 10;
+/** Smallest chip on the rack. */
+export const MIN_SMALL_BLIND_CENTS = 25;
 
-/** Amounts the rack can pay without a leftover nickel (dimes and/or quarters). */
+/** Amounts the rack can pay exactly (multiples of a white / 25¢). */
 export function isChipAmount(cents: number): boolean {
   const n = Math.round(cents);
   if (n <= 0) return false;
-  return n % 10 === 0 || n % 25 === 0;
+  return n % 25 === 0;
 }
 
 function chipNiceness(cents: number): number {
   if (cents % 1000 === 0) return 6;
   if (cents % 500 === 0) return 5;
-  if (cents % 100 === 0) return 4;
-  if (cents % 50 === 0) return 3;
-  if (cents % 25 === 0) return 2;
-  if (cents % 10 === 0) return 1;
+  if (cents % 200 === 0) return 4;
+  if (cents % 100 === 0) return 3;
+  if (cents % 50 === 0) return 2;
+  if (cents % 25 === 0) return 1;
   return 0;
 }
 
@@ -142,7 +149,7 @@ export function snapBigBlind(cents: number): number {
 }
 
 /**
- * $20 → 10¢ / 20¢. Same 0.5% / 1% of buy-in, snapped so the big blind
+ * $20 → 25¢ / 50¢. Same 0.5% / 1% of buy-in, snapped so the big blind
  * is always 2× the small and both amounts exist on the rack.
  */
 export function blindsForBuyIn(buyInCents: number): {
@@ -155,7 +162,7 @@ export function blindsForBuyIn(buyInCents: number): {
 }
 
 function emptyCounts(): Record<ChipDenom, number> {
-  return { 500: 0, 100: 0, 50: 0, 25: 0, 10: 0 };
+  return { 500: 0, 200: 0, 100: 0, 50: 0, 25: 0 };
 }
 
 function addRack(counts: Record<ChipDenom, number>, racks: number) {
@@ -207,23 +214,32 @@ export function chipBreakdown(
 
   if (rem === 0) {
     addRack(counts, racks);
-  } else if (racks === 0) {
-    addRack(counts, 1);
-    const leftover = subtractValue(counts, BUY_IN_CENTS - rem);
-    if (leftover !== 0) {
+    return toList(counts);
+  }
+
+  if (racks === 0) {
+    // Small stacks: exact greedy (one green for $2, not eight whites).
+    // Near-full racks: start from a standard rack and take chips off.
+    if (rem < BUY_IN_CENTS / 2) {
       const exact = emptyCounts();
       if (greedyAdd(exact, rem) === 0) return toList(exact);
     }
+    addRack(counts, 1);
+    const leftover = subtractValue(counts, BUY_IN_CENTS - rem);
+    if (leftover === 0) return toList(counts);
+    const exact = emptyCounts();
+    if (greedyAdd(exact, rem) === 0) return toList(exact);
+    return toList(counts);
+  }
+
+  addRack(counts, racks);
+  const trial = emptyCounts();
+  const leftover = greedyAdd(trial, rem);
+  if (leftover === 0) {
+    greedyAdd(counts, rem);
   } else {
-    addRack(counts, racks);
-    const trial = emptyCounts();
-    const leftover = greedyAdd(trial, rem);
-    if (leftover === 0) {
-      greedyAdd(counts, rem);
-    } else {
-      addRack(counts, 1);
-      subtractValue(counts, BUY_IN_CENTS - rem);
-    }
+    addRack(counts, 1);
+    subtractValue(counts, BUY_IN_CENTS - rem);
   }
 
   return toList(counts);

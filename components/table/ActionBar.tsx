@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { FeltButton } from "@/components/FeltButton";
 import { ChipAmount, ChipStack } from "@/components/ChipStack";
-import { formatChips } from "@/lib/chips";
+import { formatChips, BET_STEP_CENTS } from "@/lib/chips";
 import {
   legalActions,
   matchBetLabel,
@@ -37,7 +37,7 @@ export function ActionBar({
   }
 
   const amount = raiseTo ?? legal.minRaiseTo;
-  const step = table.game.bigBlind;
+  const step = BET_STEP_CENTS;
   const matchLabel = matchBetLabel(table.game.street);
 
   if (raising && legal.canBetOrRaise) {

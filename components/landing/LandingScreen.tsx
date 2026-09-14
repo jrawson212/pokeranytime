@@ -50,8 +50,8 @@ export function LandingScreen({
   const [mode, setMode] = useState<"multi" | "pass">("multi");
   const [cardMode, setCardMode] = useState<CardMode>("physical");
   const [buyIn, setBuyIn] = useState(20);
-  const [smallBlind, setSmallBlind] = useState(0.1);
-  const [bigBlind, setBigBlind] = useState(0.2);
+  const [smallBlind, setSmallBlind] = useState(0.25);
+  const [bigBlind, setBigBlind] = useState(0.5);
   const [maxSeats, setMaxSeats] = useState(8);
   const [extraNames, setExtraNames] = useState<string[]>([""]);
   const [busy, setBusy] = useState(false);
@@ -290,7 +290,7 @@ export function LandingScreen({
                 label="Small blind"
                 value={smallBlind}
                 onChange={applySmallBlind}
-                min={0.1}
+                min={0.25}
                 compact
                 snap={(n) =>
                   centsToDollars(snapSmallBlind(dollarsToCents(n), maxSmallBlindCents()))
@@ -300,7 +300,7 @@ export function LandingScreen({
                 label="Big blind"
                 value={bigBlind}
                 onChange={applyBigBlind}
-                min={0.2}
+                min={0.5}
                 compact
                 snap={(n) =>
                   centsToDollars(snapSmallBlind(dollarsToCents(n) / 2, maxSmallBlindCents()) * 2)
