@@ -37,7 +37,6 @@ export function TableScreen({
   onAward,
   onNextHand,
   onAcknowledge,
-  onEndGame,
   onGoHome,
 }: {
   table: TableState;
@@ -52,7 +51,6 @@ export function TableScreen({
   onAward: (winnerIds: string[]) => void;
   onNextHand: () => void;
   onAcknowledge: () => void;
-  onEndGame: () => void;
   onGoHome: () => void;
 }) {
   if (needsPass && passName) {
@@ -62,7 +60,6 @@ export function TableScreen({
         <PassInterstitial
           playerName={passName}
           onReady={onAcknowledge}
-          onEndGame={isHost ? onEndGame : undefined}
         />
       </div>
     );
@@ -92,7 +89,6 @@ export function TableScreen({
       onDeal={onDeal}
       onAward={onAward}
       onNextHand={onNextHand}
-      onEndGame={onEndGame}
     />
   ) : null;
 

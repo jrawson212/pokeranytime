@@ -11,14 +11,12 @@ export function HostBar({
   onDeal,
   onAward,
   onNextHand,
-  onEndGame,
 }: {
   table: TableState;
   cardMode?: CardMode;
   onDeal: () => void;
   onAward: (winnerIds: string[]) => void;
   onNextHand: () => void;
-  onEndGame: () => void;
 }) {
   const live = table.players.filter((p) => !p.sittingOut && !p.folded);
   const [selected, setSelected] = useState<string[]>([]);
@@ -99,15 +97,6 @@ export function HostBar({
   return (
     <div className="safe-bottom border-t border-white/10 bg-black/20">
       {body}
-      <div className="border-t border-white/10 px-3 py-2">
-        <button
-          type="button"
-          className="w-full text-center text-xs font-semibold uppercase tracking-wider text-danger"
-          onClick={onEndGame}
-        >
-          End game
-        </button>
-      </div>
     </div>
   );
 }

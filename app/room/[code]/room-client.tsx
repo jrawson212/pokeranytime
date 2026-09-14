@@ -304,7 +304,6 @@ function ReadyRoom({
             acknowledge({ roomId: room._id, playerId: you._id }),
           )
         }
-        onEndGame={confirmEnd}
         onGoHome={goHome}
       />
     </>

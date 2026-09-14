@@ -5,11 +5,9 @@ import { FeltButton } from "@/components/FeltButton";
 export function PassInterstitial({
   playerName,
   onReady,
-  onEndGame,
 }: {
   playerName: string;
   onReady: () => void;
-  onEndGame?: () => void;
 }) {
   return (
     <div className="phone-screen flex h-dvh flex-col items-center justify-center gap-8 text-center felt-bg">
@@ -23,15 +21,6 @@ export function PassInterstitial({
       <FeltButton className="min-h-14 w-full max-w-xs text-lg" onClick={onReady}>
         I&apos;m {playerName}
       </FeltButton>
-      {onEndGame && (
-        <button
-          type="button"
-          className="text-xs font-semibold uppercase tracking-wider text-danger"
-          onClick={onEndGame}
-        >
-          End game
-        </button>
-      )}
     </div>
   );
 }
