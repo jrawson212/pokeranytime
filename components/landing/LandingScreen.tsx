@@ -226,7 +226,7 @@ export function LandingScreen({
                 <button
                   type="button"
                   onClick={() => setMode("multi")}
-                  className={`pressable rounded-2xl border px-3 py-4 text-left ${mode === "multi" ? "border-gold bg-gold/15" : "border-white/10 bg-black/20"}`}
+                  className={`rounded-2xl border border-white/10 px-3 py-4 text-left ${mode === "multi" ? "pressable bg-black/25" : "bg-black/20 active:opacity-80"}`}
                 >
                   <span className="block font-bold">Multi-phone</span>
                   <span className="mt-1 block text-xs text-felt-muted">
@@ -239,7 +239,7 @@ export function LandingScreen({
                     setMode("pass");
                     setExtraNames(cardMode === "digital" ? [] : [""]);
                   }}
-                  className={`pressable rounded-2xl border px-3 py-4 text-left ${mode === "pass" ? "border-gold bg-gold/15" : "border-white/10 bg-black/20"}`}
+                  className={`rounded-2xl border border-white/10 px-3 py-4 text-left ${mode === "pass" ? "pressable bg-black/25" : "bg-black/20 active:opacity-80"}`}
                 >
                   <span className="block font-bold">Pass-and-play</span>
                   <span className="mt-1 block text-xs text-felt-muted">
@@ -262,7 +262,7 @@ export function LandingScreen({
                       setExtraNames([""]);
                     }
                   }}
-                  className={`pressable rounded-2xl border px-3 py-4 text-left ${cardMode === "physical" ? "border-gold bg-gold/15" : "border-white/10 bg-black/20"}`}
+                  className={`rounded-2xl border border-white/10 px-3 py-4 text-left ${cardMode === "physical" ? "pressable bg-black/25" : "bg-black/20 active:opacity-80"}`}
                 >
                   <span className="block font-bold">We have cards</span>
                   <span className="mt-1 block text-xs text-felt-muted">
@@ -277,7 +277,7 @@ export function LandingScreen({
                       setExtraNames([]);
                     }
                   }}
-                  className={`pressable rounded-2xl border px-3 py-4 text-left ${cardMode === "digital" ? "border-gold bg-gold/15" : "border-white/10 bg-black/20"}`}
+                  className={`rounded-2xl border border-white/10 px-3 py-4 text-left ${cardMode === "digital" ? "pressable bg-black/25" : "bg-black/20 active:opacity-80"}`}
                 >
                   <span className="block font-bold">We don&apos;t have cards</span>
                   <span className="mt-1 block text-xs text-felt-muted">
