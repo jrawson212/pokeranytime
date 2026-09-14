@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { RoomClient } from "./room-client";
 
 export default async function RoomPage({
@@ -6,5 +7,9 @@ export default async function RoomPage({
   params: Promise<{ code: string }>;
 }) {
   const { code } = await params;
-  return <RoomClient code={code.toUpperCase()} />;
+  return (
+    <Suspense fallback={<div className="min-h-dvh felt-bg" />}>
+      <RoomClient code={code.toUpperCase()} />
+    </Suspense>
+  );
 }

@@ -141,7 +141,7 @@ export function LandingScreen({
         playerNames: mode === "pass" ? extras : undefined,
       });
       savePlayerId(result.code, result.playerId);
-      router.push(`/room/${result.code}`);
+      router.push(`/room/${result.code}?p=${result.playerId}`);
     } catch (e) {
       setError(convexMessage(e));
     } finally {
@@ -156,7 +156,7 @@ export function LandingScreen({
       saveName(nameValue);
       const result = await onJoin({ code: normalizeCode(code), name: nameValue });
       savePlayerId(result.code, result.playerId);
-      router.push(`/room/${result.code}`);
+      router.push(`/room/${result.code}?p=${result.playerId}`);
     } catch (e) {
       setError(convexMessage(e));
     } finally {
@@ -392,13 +392,25 @@ export function LandingScreen({
 
       <div className="mt-6 shrink-0">
         {tab === "join" ? (
-          <FeltButton
-            className="min-h-14 w-full"
-            disabled={busy || nameValue.trim().length < 1 || normalizeCode(code).length !== 4}
-            onClick={submitJoin}
-          >
-            Sit down
-          </FeltButton>
+          <>
+            {nameValue.trim().length < 1 && (
+              <p className="mb-2 text-center text-sm text-felt-muted">
+                Enter your name to sit down
+              </p>
+            )}
+            {nameValue.trim().length >= 1 && normalizeCode(code).length !== 4 && (
+              <p className="mb-2 text-center text-sm text-felt-muted">
+                Enter the 4-character room code
+              </p>
+            )}
+            <FeltButton
+              className="min-h-14 w-full"
+              disabled={busy || nameValue.trim().length < 1 || normalizeCode(code).length !== 4}
+              onClick={submitJoin}
+            >
+              {busy ? "Joining…" : "Sit down"}
+            </FeltButton>
+          </>
         ) : (
           <FeltButton
             className="min-h-14 w-full"
@@ -410,7 +422,11 @@ export function LandingScreen({
             }
             onClick={submitCreate}
           >
-            {mode === "pass" ? "Start game" : "Create room"}
+            {busy
+              ? "Creating…"
+              : mode === "pass"
+                ? "Start game"
+                : "Create room"}
           </FeltButton>
         )}
       </div>

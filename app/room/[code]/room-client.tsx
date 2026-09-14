@@ -2,7 +2,8 @@
 
 import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { ErrorBanner } from "@/components/ErrorBanner";
 import { FeltButton } from "@/components/FeltButton";
 import { GameOverScreen } from "@/components/table/GameOverScreen";
@@ -18,12 +19,21 @@ import { tableFromSnap } from "@/lib/snapshot";
 import { useBrowserValue } from "@/lib/useBrowserValue";
 
 export function RoomClient({ code }: { code: string }) {
+  const searchParams = useSearchParams();
+  const urlPlayerId = searchParams.get("p");
   const storedPlayerId = useBrowserValue(() => loadPlayerId(code), null);
   const [joined, setJoined] = useState<{ code: string; id: string } | null>(
     null,
   );
   const [error, setError] = useState<string | null>(null);
-  const playerId = joined?.code === code ? joined.id : storedPlayerId;
+  const playerId =
+    (joined?.code === code ? joined.id : null) ??
+    urlPlayerId ??
+    storedPlayerId;
+
+  useEffect(() => {
+    if (urlPlayerId) savePlayerId(code, urlPlayerId);
+  }, [code, urlPlayerId]);
 
   if (!isConvexConfigured) {
     return (
@@ -151,10 +161,15 @@ function ReadyRoom({
             onChange={(e) => setJoinName(e.target.value)}
             className="mt-1 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-base text-cream outline-none focus:border-gold"
             maxLength={16}
+            placeholder="Alex"
           />
         </label>
+        {nameValue.trim().length < 1 && (
+          <p className="mt-2 text-sm text-felt-muted">Enter your name to sit down</p>
+        )}
         <FeltButton
           className="mt-6 min-h-14 w-full"
+          disabled={nameValue.trim().length < 1}
           onClick={() =>
             run(async () => {
               saveName(nameValue);
@@ -168,7 +183,7 @@ function ReadyRoom({
             })
           }
         >
-          Join
+          Sit down
         </FeltButton>
       </div>
     );

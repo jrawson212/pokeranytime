@@ -118,6 +118,13 @@ export function LobbyScreen({
       )}
 
       <div className="mt-auto pt-8">
+        {!isPass && (
+          <p className="mb-3 text-center text-sm text-felt-muted">
+            {players.length < 2
+              ? `Share the code — ${players.length} of 2+ seated`
+              : `${players.length} seated`}
+          </p>
+        )}
         {isHost ? (
           <>
             <FeltButton
@@ -125,7 +132,7 @@ export function LobbyScreen({
               disabled={players.length < 2}
               onClick={onStart}
             >
-              Start game
+              {players.length < 2 ? "Waiting for players" : "Start game"}
             </FeltButton>
             {onEndGame && (
               <button
@@ -138,7 +145,9 @@ export function LobbyScreen({
             )}
           </>
         ) : (
-          <p className="text-center text-felt-muted">Waiting for the host…</p>
+          <p className="text-center text-felt-muted">
+            You&apos;re in. Waiting for the host to start…
+          </p>
         )}
       </div>
     </div>

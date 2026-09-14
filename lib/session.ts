@@ -1,13 +1,38 @@
 const PREFIX = "poker-anytime";
 
+function playerKey(code: string) {
+  return `${PREFIX}:${code.toUpperCase()}:playerId`;
+}
+
 export function savePlayerId(code: string, playerId: string) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(`${PREFIX}:${code.toUpperCase()}:playerId`, playerId);
+  const key = playerKey(code);
+  try {
+    localStorage.setItem(key, playerId);
+  } catch {
+    /* private mode / quota */
+  }
+  try {
+    sessionStorage.setItem(key, playerId);
+  } catch {
+    /* ignore */
+  }
 }
 
 export function loadPlayerId(code: string): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem(`${PREFIX}:${code.toUpperCase()}:playerId`);
+  const key = playerKey(code);
+  try {
+    const fromSession = sessionStorage.getItem(key);
+    if (fromSession) return fromSession;
+  } catch {
+    /* ignore */
+  }
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
 }
 
 export function saveName(name: string) {
