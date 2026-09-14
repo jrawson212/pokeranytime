@@ -167,14 +167,14 @@ export function LandingScreen({
   return (
     <div className="phone-screen mx-auto flex h-dvh max-w-md flex-col felt-bg !pt-0">
       <ErrorBanner message={error} onDismiss={() => setError(null)} />
-      <header className="shrink-0 pt-[calc(max(0.75rem,env(safe-area-inset-top,0px),var(--app-safe-top))+0.5rem)]">
-        <h1 className="text-4xl font-bold tracking-tight">Poker Anytime</h1>
-      </header>
-
       <div
         ref={formScrollRef}
-        className="mt-5 flex min-h-0 flex-1 flex-col justify-start gap-5 overflow-y-auto overscroll-y-contain pb-4 [-webkit-overflow-scrolling:touch]"
+        className="flex min-h-0 flex-1 flex-col justify-start gap-5 overflow-y-auto overscroll-y-contain pb-2 [-webkit-overflow-scrolling:touch]"
       >
+        <header className="shrink-0 pt-[calc(max(0.75rem,env(safe-area-inset-top,0px),var(--app-safe-top))+0.5rem)]">
+          <h1 className="text-4xl font-bold tracking-tight">Poker Anytime</h1>
+        </header>
+
         <div className="grid shrink-0 grid-cols-2 gap-2 rounded-2xl border border-white/15 bg-black/25 p-1">
           <button
             type="button"
@@ -414,53 +414,53 @@ export function LandingScreen({
             )}
           </>
         )}
-      </div>
 
-      <div className="mt-3 shrink-0">
-        {tab === "join" ? (
-          <>
-            {nameValue.trim().length < 1 && (
-              <p className="mb-2 text-center text-sm text-felt-muted">
-                Enter your name to sit down
-              </p>
-            )}
-            {nameValue.trim().length >= 1 && normalizeCode(code).length !== 4 && (
-              <p className="mb-2 text-center text-sm text-felt-muted">
-                Enter the 4-character room code
-              </p>
-            )}
+        <div className="shrink-0">
+          {tab === "join" ? (
+            <>
+              {nameValue.trim().length < 1 && (
+                <p className="mb-2 text-center text-sm text-felt-muted">
+                  Enter your name to sit down
+                </p>
+              )}
+              {nameValue.trim().length >= 1 && normalizeCode(code).length !== 4 && (
+                <p className="mb-2 text-center text-sm text-felt-muted">
+                  Enter the 4-character room code
+                </p>
+              )}
+              <FeltButton
+                className="!min-h-10 w-full py-2 text-sm"
+                disabled={busy || nameValue.trim().length < 1 || normalizeCode(code).length !== 4}
+                onClick={submitJoin}
+              >
+                {busy ? "Joining…" : "Sit down"}
+              </FeltButton>
+            </>
+          ) : (
             <FeltButton
               className="!min-h-10 w-full py-2 text-sm"
-              disabled={busy || nameValue.trim().length < 1 || normalizeCode(code).length !== 4}
-              onClick={submitJoin}
+              disabled={
+                busy ||
+                nameValue.trim().length < 1 ||
+                seatsOutOfRange ||
+                (mode === "pass" &&
+                  cardMode !== "digital" &&
+                  extraNames.filter((n) => n.trim()).length < 1)
+              }
+              onClick={submitCreate}
             >
-              {busy ? "Joining…" : "Sit down"}
+              {busy
+                ? "Creating…"
+                : mode === "pass" &&
+                    cardMode === "digital" &&
+                    extraNames.filter((n) => n.trim()).length < 1
+                  ? "Play solo"
+                  : mode === "pass"
+                    ? "Start game"
+                    : "Create room"}
             </FeltButton>
-          </>
-        ) : (
-          <FeltButton
-            className="!min-h-10 w-full py-2 text-sm"
-            disabled={
-              busy ||
-              nameValue.trim().length < 1 ||
-              seatsOutOfRange ||
-              (mode === "pass" &&
-                cardMode !== "digital" &&
-                extraNames.filter((n) => n.trim()).length < 1)
-            }
-            onClick={submitCreate}
-          >
-            {busy
-              ? "Creating…"
-              : mode === "pass" &&
-                  cardMode === "digital" &&
-                  extraNames.filter((n) => n.trim()).length < 1
-                ? "Play solo"
-                : mode === "pass"
-                  ? "Start game"
-                  : "Create room"}
-          </FeltButton>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
