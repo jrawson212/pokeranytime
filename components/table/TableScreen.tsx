@@ -1,6 +1,7 @@
 "use client";
 
 import { ChipAmount } from "@/components/ChipStack";
+import { HomeButton } from "@/components/HomeButton";
 import { CardRow } from "@/components/PlayingCard";
 import {
   positionTags,
@@ -32,6 +33,7 @@ export function TableScreen({
   onNextHand,
   onAcknowledge,
   onEndGame,
+  onGoHome,
 }: {
   table: TableState;
   you: PlayerState | undefined;
@@ -46,14 +48,18 @@ export function TableScreen({
   onNextHand: () => void;
   onAcknowledge: () => void;
   onEndGame: () => void;
+  onGoHome: () => void;
 }) {
   if (needsPass && passName) {
     return (
-      <PassInterstitial
-        playerName={passName}
-        onReady={onAcknowledge}
-        onEndGame={isHost ? onEndGame : undefined}
-      />
+      <div className="relative">
+        <HomeButton onClick={onGoHome} />
+        <PassInterstitial
+          playerName={passName}
+          onReady={onAcknowledge}
+          onEndGame={isHost ? onEndGame : undefined}
+        />
+      </div>
     );
   }
 
@@ -96,7 +102,8 @@ export function TableScreen({
             : 0;
 
     return (
-      <div className="flex h-dvh flex-col overflow-hidden felt-bg">
+      <div className="relative flex h-dvh flex-col overflow-hidden felt-bg">
+        <HomeButton onClick={onGoHome} />
         <div className="safe-top shrink-0 border-b border-white/10 px-4 pb-4 pt-3">
           <p className="text-center text-xs font-semibold uppercase tracking-[0.25em] text-gold">
             {streetLabel(table.game.street)} · Hand {table.game.handNumber}
@@ -183,7 +190,8 @@ export function TableScreen({
 
   if (mode === "pass") {
     return (
-      <div className="flex min-h-dvh flex-col felt-bg">
+      <div className="relative flex min-h-dvh flex-col felt-bg">
+        <HomeButton onClick={onGoHome} />
         <div className="safe-top min-h-[38vh] border-b border-white/10">
           <PotView
             table={table}
@@ -229,7 +237,8 @@ export function TableScreen({
   }
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden felt-bg">
+    <div className="relative flex h-dvh flex-col overflow-hidden felt-bg">
+      <HomeButton onClick={onGoHome} />
       <div className="safe-top h-[48%] min-h-0 border-b border-white/10">
         <PotView
           table={table}

@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ErrorBanner } from "@/components/ErrorBanner";
 import { FeltButton } from "@/components/FeltButton";
@@ -87,6 +87,8 @@ function ReadyRoom({
   const storedName = useBrowserValue(loadName, "");
   const [joinName, setJoinName] = useState<string | null>(null);
   const nameValue = joinName ?? storedName;
+  const router = useRouter();
+  const isHost = !!data?.room?.hostId && data.room.hostId === data.you?._id;
 
   const table = useMemo(() => {
     if (!data?.room || data.room.status !== "playing" || !data.room.street) {
@@ -110,6 +112,22 @@ function ReadyRoom({
     await run(() =>
       endGame({ roomId: data.room._id, playerId: data.you!._id }),
     );
+  }
+
+  async function goHome() {
+    if (isHost) {
+      if (!window.confirm("End this game and go home?")) return;
+      if (!data?.room || !data.you) return;
+      try {
+        await endGame({ roomId: data.room._id, playerId: data.you._id });
+      } catch (e) {
+        setError(convexMessage(e));
+        return;
+      }
+    } else if (!window.confirm("Leave this table and go home?")) {
+      return;
+    }
+    router.push("/");
   }
 
   if (data === undefined) {
@@ -284,6 +302,7 @@ function ReadyRoom({
           )
         }
         onEndGame={confirmEnd}
+        onGoHome={goHome}
       />
     </>
   );
