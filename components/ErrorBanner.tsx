@@ -23,7 +23,7 @@ export function ErrorBanner({
     <button
       type="button"
       onClick={onDismiss}
-      className="w-full shrink-0 rounded-xl px-4 py-3 text-center text-sm font-semibold text-white"
+      className="pressable w-full shrink-0 rounded-xl px-4 py-3 text-center text-sm font-semibold text-white"
       style={{ backgroundColor: "var(--danger)" }}
     >
       {message}

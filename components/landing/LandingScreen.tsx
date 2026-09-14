@@ -178,14 +178,14 @@ export function LandingScreen({
         <div className="grid shrink-0 grid-cols-2 gap-2 rounded-2xl border border-white/15 bg-black/25 p-1">
           <button
             type="button"
-            className={`rounded-xl border-2 py-2.5 text-sm font-bold uppercase tracking-wide ${tab === "create" ? "border-cream bg-gold text-felt-dark" : "border-transparent text-cream"}`}
+            className={`pressable rounded-xl border-2 py-2.5 text-sm font-bold uppercase tracking-wide ${tab === "create" ? "border-cream bg-gold text-felt-dark" : "border-transparent bg-black/20 text-cream"}`}
             onClick={() => setTab("create")}
           >
             Create
           </button>
           <button
             type="button"
-            className={`rounded-xl border-2 py-2.5 text-sm font-bold uppercase tracking-wide ${tab === "join" ? "border-cream bg-gold text-felt-dark" : "border-transparent text-cream"}`}
+            className={`pressable rounded-xl border-2 py-2.5 text-sm font-bold uppercase tracking-wide ${tab === "join" ? "border-cream bg-gold text-felt-dark" : "border-transparent bg-black/20 text-cream"}`}
             onClick={() => setTab("join")}
           >
             Join
@@ -226,7 +226,7 @@ export function LandingScreen({
                 <button
                   type="button"
                   onClick={() => setMode("multi")}
-                  className={`rounded-2xl border px-3 py-4 text-left ${mode === "multi" ? "border-gold bg-gold/15" : "border-white/10 bg-black/20"}`}
+                  className={`pressable rounded-2xl border px-3 py-4 text-left ${mode === "multi" ? "border-gold bg-gold/15" : "border-white/10 bg-black/20"}`}
                 >
                   <span className="block font-bold">Multi-phone</span>
                   <span className="mt-1 block text-xs text-felt-muted">
@@ -239,7 +239,7 @@ export function LandingScreen({
                     setMode("pass");
                     setExtraNames(cardMode === "digital" ? [] : [""]);
                   }}
-                  className={`rounded-2xl border px-3 py-4 text-left ${mode === "pass" ? "border-gold bg-gold/15" : "border-white/10 bg-black/20"}`}
+                  className={`pressable rounded-2xl border px-3 py-4 text-left ${mode === "pass" ? "border-gold bg-gold/15" : "border-white/10 bg-black/20"}`}
                 >
                   <span className="block font-bold">Pass-and-play</span>
                   <span className="mt-1 block text-xs text-felt-muted">
@@ -262,7 +262,7 @@ export function LandingScreen({
                       setExtraNames([""]);
                     }
                   }}
-                  className={`rounded-2xl border px-3 py-4 text-left ${cardMode === "physical" ? "border-gold bg-gold/15" : "border-white/10 bg-black/20"}`}
+                  className={`pressable rounded-2xl border px-3 py-4 text-left ${cardMode === "physical" ? "border-gold bg-gold/15" : "border-white/10 bg-black/20"}`}
                 >
                   <span className="block font-bold">We have cards</span>
                   <span className="mt-1 block text-xs text-felt-muted">
@@ -277,7 +277,7 @@ export function LandingScreen({
                       setExtraNames([]);
                     }
                   }}
-                  className={`rounded-2xl border px-3 py-4 text-left ${cardMode === "digital" ? "border-gold bg-gold/15" : "border-white/10 bg-black/20"}`}
+                  className={`pressable rounded-2xl border px-3 py-4 text-left ${cardMode === "digital" ? "border-gold bg-gold/15" : "border-white/10 bg-black/20"}`}
                 >
                   <span className="block font-bold">We don&apos;t have cards</span>
                   <span className="mt-1 block text-xs text-felt-muted">
@@ -377,7 +377,7 @@ export function LandingScreen({
                         (cardMode === "digital" && extraNames.length >= 1)) && (
                         <button
                           type="button"
-                          className="px-2 text-xs uppercase tracking-wider text-danger"
+                          className="pressable shrink-0 rounded-xl bg-black/30 px-3 py-2 text-xs uppercase tracking-wider text-danger"
                           onClick={() =>
                             setExtraNames((cur) => {
                               const next = cur.filter((_, j) => j !== i);
@@ -395,7 +395,7 @@ export function LandingScreen({
                 {extraNames.length < MAX_PLAYERS - 1 && (
                   <button
                     type="button"
-                    className="mt-3 scroll-mb-4 text-sm font-semibold text-gold"
+                    className="pressable mt-3 scroll-mb-4 rounded-xl bg-black/25 px-3 py-2 text-sm font-semibold text-gold"
                     onClick={() => {
                       revealNewPlayer.current = true;
                       flushSync(() => {

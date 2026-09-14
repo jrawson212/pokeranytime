@@ -59,7 +59,7 @@ export function LobbyScreen({
         <button
           type="button"
           onClick={copy}
-          className="mt-3 shrink-0 text-center font-mono text-6xl font-bold tracking-[0.2em] text-cream"
+          className="pressable mt-3 shrink-0 rounded-2xl bg-black/25 px-4 py-3 text-center font-mono text-6xl font-bold tracking-[0.2em] text-cream"
         >
           {code}
         </button>
@@ -84,7 +84,7 @@ export function LobbyScreen({
               {isHost && p._id !== youId && (
                 <button
                   type="button"
-                  className="text-xs uppercase tracking-wider text-danger"
+                  className="pressable rounded-xl bg-black/30 px-3 py-1.5 text-xs uppercase tracking-wider text-danger"
                   onClick={() => onKick(p._id)}
                 >
                   Kick
@@ -137,7 +137,7 @@ export function LobbyScreen({
             {onEndGame && (
               <button
                 type="button"
-                className="mt-4 w-full text-center text-xs font-semibold uppercase tracking-wider text-danger"
+                className="pressable mt-4 w-full rounded-xl bg-black/25 py-3 text-center text-xs font-semibold uppercase tracking-wider text-danger"
                 onClick={onEndGame}
               >
                 End game

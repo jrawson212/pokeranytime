@@ -54,3 +54,20 @@ body {
 .pot-glow {
   text-shadow: 0 0 24px rgba(228, 197, 106, 0.45);
 }
+
+/* Chunky gold ledge under clickable controls (matches FeltButton gold). */
+.pressable {
+  box-shadow: 0 4px 0 #9a7b0a;
+  touch-action: manipulation;
+  transition:
+    transform 80ms ease,
+    box-shadow 80ms ease;
+}
+.pressable:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #9a7b0a;
+}
+.pressable:disabled {
+  box-shadow: none;
+  transform: none;
+}
