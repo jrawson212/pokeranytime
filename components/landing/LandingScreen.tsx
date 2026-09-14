@@ -178,14 +178,14 @@ export function LandingScreen({
         <div className="grid shrink-0 grid-cols-2 gap-2 rounded-2xl border border-white/15 bg-black/25 p-1">
           <button
             type="button"
-            className={`pressable rounded-xl border-2 py-2.5 text-sm font-bold uppercase tracking-wide ${tab === "create" ? "border-cream bg-gold text-felt-dark" : "border-transparent bg-black/20 text-cream"}`}
+            className={`rounded-xl py-2.5 text-sm font-bold uppercase tracking-wide text-cream ${tab === "create" ? "pressable bg-black/30" : "bg-transparent active:opacity-80"}`}
             onClick={() => setTab("create")}
           >
             Create
           </button>
           <button
             type="button"
-            className={`pressable rounded-xl border-2 py-2.5 text-sm font-bold uppercase tracking-wide ${tab === "join" ? "border-cream bg-gold text-felt-dark" : "border-transparent bg-black/20 text-cream"}`}
+            className={`rounded-xl py-2.5 text-sm font-bold uppercase tracking-wide text-cream ${tab === "join" ? "pressable bg-black/30" : "bg-transparent active:opacity-80"}`}
             onClick={() => setTab("join")}
           >
             Join

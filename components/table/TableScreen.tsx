@@ -154,9 +154,9 @@ export function TableScreen({
                   key={p.id}
                   className={`rounded-xl px-3 py-2 ${
                     won
-                      ? "bg-gold/20 ring-1 ring-gold"
+                      ? "pressable bg-gold/20"
                       : p.id === table.game.toAct
-                        ? "bg-gold/15 ring-1 ring-gold"
+                        ? "pressable bg-black/25"
                         : "bg-black/20"
                   }`}
                 >
@@ -243,7 +243,7 @@ export function TableScreen({
               <li
                 key={p.id}
                 className={`flex items-center justify-between rounded-xl px-3 py-2 ${
-                  p.id === table.game.toAct ? "bg-gold/15 ring-1 ring-gold" : "bg-black/20"
+                  p.id === table.game.toAct ? "pressable bg-black/25" : "bg-black/20"
                 }`}
               >
                 <span className="font-semibold">
