@@ -78,8 +78,8 @@ export const CHIP_STYLES: Record<
   },
 };
 
-/** Raise / bet +/- nudge size ($0.10). */
-export const BET_STEP_CENTS = 10;
+/** Raise / bet +/- nudge size ($0.25). */
+export const BET_STEP_CENTS = 25;
 
 export function dollarsToCents(dollars: number): number {
   return Math.round(dollars * 100);

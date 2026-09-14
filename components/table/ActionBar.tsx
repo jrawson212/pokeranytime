@@ -1,9 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FeltButton } from "@/components/FeltButton";
 import { ChipAmount, ChipStack } from "@/components/ChipStack";
-import { formatChips, BET_STEP_CENTS } from "@/lib/chips";
+import {
+  BET_STEP_CENTS,
+  centsToDollars,
+  dollarsToCents,
+  formatChips,
+  formatDollarInput,
+  sanitizeDollarDraft,
+  snapToChipAmount,
+} from "@/lib/chips";
 import {
   legalActions,
   matchBetLabel,
@@ -27,6 +35,16 @@ export function ActionBar({
   const presets = useMemo(() => raisePresets(table, playerId), [table, playerId]);
   const [raising, setRaising] = useState(false);
   const [raiseTo, setRaiseTo] = useState<number | null>(null);
+  const [draft, setDraft] = useState("");
+  const [editing, setEditing] = useState(false);
+
+  const amount = raiseTo ?? legal?.minRaiseTo ?? 0;
+
+  useEffect(() => {
+    if (!editing && legal) {
+      setDraft(formatDollarInput(centsToDollars(amount)));
+    }
+  }, [amount, editing, legal]);
 
   if (!legal) {
     return (
@@ -36,11 +54,32 @@ export function ActionBar({
     );
   }
 
-  const amount = raiseTo ?? legal.minRaiseTo;
+  const bounds = legal;
   const step = BET_STEP_CENTS;
   const matchLabel = matchBetLabel(table.game.street);
 
+  function clampRaise(cents: number) {
+    const snapped = snapToChipAmount(cents, bounds.minRaiseTo);
+    return Math.min(bounds.maxRaiseTo, Math.max(bounds.minRaiseTo, snapped));
+  }
+
+  function commitDraft() {
+    setEditing(false);
+    const parsed = Number(draft);
+    if (!Number.isFinite(parsed)) {
+      setDraft(formatDollarInput(centsToDollars(amount)));
+      return;
+    }
+    const next = clampRaise(dollarsToCents(parsed));
+    setRaiseTo(next);
+    setDraft(formatDollarInput(centsToDollars(next)));
+  }
+
   if (raising && legal.canBetOrRaise) {
+    const confirmAmount = editing
+      ? clampRaise(dollarsToCents(Number(draft) || 0))
+      : amount;
+
     return (
       <div className="flex flex-col gap-3 px-3 pb-3">
         <div className="flex flex-wrap justify-center gap-2">
@@ -49,7 +88,10 @@ export function ActionBar({
               key={p.label}
               variant={p.amount === amount ? "gold" : "ghost"}
               className="min-h-10 px-3 text-xs"
-              onClick={() => setRaiseTo(p.amount)}
+              onClick={() => {
+                setEditing(false);
+                setRaiseTo(p.amount);
+              }}
             >
               {p.label}
             </FeltButton>
@@ -61,21 +103,52 @@ export function ActionBar({
             <FeltButton
               variant="felt"
               className="min-h-12 w-12 text-xl"
-              onClick={() =>
-                setRaiseTo(Math.max(legal.minRaiseTo, amount - step))
-              }
+              onClick={() => {
+                setEditing(false);
+                setRaiseTo(clampRaise(amount - step));
+              }}
             >
               −
             </FeltButton>
-            <p className="min-w-24 text-center font-mono text-2xl font-bold">
-              {formatChips(amount)}
-            </p>
+            <div className="flex min-h-12 min-w-28 items-center justify-center gap-0.5 rounded-xl border border-white/15 bg-black/30 px-2 focus-within:border-gold">
+              <span className="font-mono text-2xl font-bold text-felt-muted">$</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                enterKeyHint="done"
+                autoComplete="off"
+                aria-label="Bet amount"
+                value={editing ? draft : formatDollarInput(centsToDollars(amount))}
+                onFocus={(e) => {
+                  setEditing(true);
+                  setDraft(formatDollarInput(centsToDollars(amount)));
+                  requestAnimationFrame(() => e.target.select());
+                }}
+                onChange={(e) => {
+                  const next = sanitizeDollarDraft(e.target.value);
+                  setDraft(next);
+                  if (next === "" || next === "." || next === "0.") return;
+                  const parsed = Number(next);
+                  if (!Number.isFinite(parsed)) return;
+                  const cents = dollarsToCents(parsed);
+                  if (cents >= legal.minRaiseTo && cents <= legal.maxRaiseTo) {
+                    setRaiseTo(cents);
+                  }
+                }}
+                onBlur={commitDraft}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") e.currentTarget.blur();
+                }}
+                className="w-full bg-transparent text-center font-mono text-2xl font-bold text-cream outline-none"
+              />
+            </div>
             <FeltButton
               variant="felt"
               className="min-h-12 w-12 text-xl"
-              onClick={() =>
-                setRaiseTo(Math.min(legal.maxRaiseTo, amount + step))
-              }
+              onClick={() => {
+                setEditing(false);
+                setRaiseTo(clampRaise(amount + step));
+              }}
             >
               +
             </FeltButton>
@@ -88,11 +161,12 @@ export function ActionBar({
           <FeltButton
             disabled={disabled}
             onClick={() => {
-              onAct({ type: "raiseTo", amount });
+              onAct({ type: "raiseTo", amount: confirmAmount });
               setRaising(false);
+              setEditing(false);
             }}
           >
-            {legal.isBet ? "Bet" : "Raise"} {formatChips(amount)}
+            {legal.isBet ? "Bet" : "Raise"} {formatChips(confirmAmount)}
           </FeltButton>
         </div>
       </div>
@@ -136,6 +210,7 @@ export function ActionBar({
         disabled={disabled || !legal.canBetOrRaise}
         onClick={() => {
           setRaiseTo(legal.minRaiseTo);
+          setEditing(false);
           setRaising(true);
         }}
       >

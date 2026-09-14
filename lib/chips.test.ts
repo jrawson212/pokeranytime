@@ -115,7 +115,7 @@ describe("blindsForBuyIn", () => {
 
 describe("bet step", () => {
   it("nudges raises by ten cents", () => {
-    expect(BET_STEP_CENTS).toBe(10);
+    expect(BET_STEP_CENTS).toBe(25);
   });
 });
 
